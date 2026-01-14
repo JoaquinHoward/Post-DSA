@@ -52,6 +52,7 @@ void enqueue(queue* Q, int data){
 int dequeue(queue* Q){
     int first = -1;
     if(isEmpty(*Q)==false){
-        first = Q->array[]
+        first = Q->array[Q->rear];
+        Q->rear
     }
 }
