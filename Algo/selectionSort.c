@@ -19,18 +19,38 @@ void display(int a[]){
 }
 
 void selectionSort(int a[]){
-    for(int i=0; i<M; i++){
-        int ndx = i;
-        int j; 
+    for(int i=0; i<M-1; i++){
+        int minNdx = a[i];
+        int j;
         for(j=i+1; j<M; j++){
-            if(a[j] < a[ndx]){
-                ndx = j;
+            if(a[j] < a[minNdx]){
+                minNdx = j;
             }
         }
-        if(ndx!=i){
-            int elem = a[ndx];
-            a[ndx] = a[i];
-            a[i] = elem;
-        }
+        int temp = a[i];
+        a[i] = a[minNdx];
+        a[minNdx] = temp;
     }
 }
+
+
+
+
+
+
+// void selectionSort(int a[]){
+//     for(int i=0; i<M; i++){
+//         int ndx = i;
+//         int j; 
+//         for(j=i+1; j<M; j++){
+//             if(a[j] < a[ndx]){
+//                 ndx = j;
+//             }
+//         }
+//         if(ndx!=i){
+//             int elem = a[ndx];
+//             a[ndx] = a[i];
+//             a[i] = elem;
+//         }
+//     }
+// }
