@@ -28,5 +28,7 @@ void insertionSort(int a[], int s){
         j--;
     }
     a[j+1] = elem;
+    }
 }
-}
+
+
