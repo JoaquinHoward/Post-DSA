@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tournament Sort: Detailed Visualization</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --text-color: #e2e8f0;
+            --accent-color: #38bdf8;
+            --secondary-bg: #1e293b;
+            --node-bg: #334155;
+            --compare-color: #facc15; /* Yellow */
+            --promote-color: #22c55e; /* Green */
+            --eliminate-color: #ef4444; /* Red */
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        /* --- Header & Info Sections --- */
+        header {
+            background-color: var(--secondary-bg);
+            padding: 2rem;
+            text-align: center;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        h1 { margin: 0; font-size: 2.5rem; color: var(--accent-color); }
+        .subtitle { color: #94a3b8; margin-top: 0.5rem; }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--secondary-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            border: 1px solid #334155;
+        }
+
+        h2 { color: var(--accent-color); border-bottom: 1px solid #334155; padding-bottom: 0.5rem; margin-top: 0; }
+        ul { padding-left: 1.2rem; }
+        li { margin-bottom: 0.5rem; }
+        
+        .badge {
+            background: rgba(255,255,255,0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: bold;
+        }
+        .badge-no { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+
+        /* --- Visualization Area --- */
+        #viz-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .status-bar {
+            background: #000;
+            padding: 1rem;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
+            min-height: 1.6rem;
+            transition: all 0.2s;
+        }
+
+        #viz-container {
+            background: #0b1120;
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        /* Tree Styling */
+        .tree-level {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem; /* Gap between nodes */
+            margin-bottom: 2.5rem; /* Gap between levels */
+            width: 100%;
+            position: relative;
+        }
+
+        .node {
+            width: 50px;
+            height: 50px;
+            background: var(--node-bg);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            border: 3px solid #475569;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Node States */
+        .node.comparing {
+            border-color: var(--compare-color);
+            background: #422006; /* Dark yellow bg */
+            transform: scale(1.1);
+            box-shadow: 0 0 15px var(--compare-color);
+        }
+
+        .node.promoted {
+            border-color: var(--promote-color);
+            background: #14532d; /* Dark green bg */
+            transform: scale(1.15);
+            box-shadow: 0 0 15px var(--promote-color);
+            color: #fff;
+        }
+
+        .node.eliminated {
+            border-color: var(--eliminate-color);
+            opacity: 0.5;
+            transform: scale(0.9);
+        }
+
+        .node.infinity {
+            color: #94a3b8;
+            font-size: 1.5rem;
+        }
+
+        /* Sorted Array Section */
+        #sorted-wrapper {
+            margin-top: auto;
+            width: 100%;
+            border-top: 1px dashed #334155;
+            padding-top: 1rem;
+        }
+        
+        .sorted-label { text-align: center; color: #94a3b8; font-size: 0.9rem; margin-bottom: 0.5rem; }
+
+        #sorted-array {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            min-height: 50px;
+            flex-wrap: wrap;
+        }
+
+        .sorted-item {
+            width: 40px;
+            height: 40px;
+            background: #f59e0b;
+            color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            border-radius: 4px;
+            animation: slideIn 0.4s ease-out;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            align-items: center;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: var(--accent-color);
+            color: #0f172a;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.2s;
+            min-width: 120px;
+        }
+
+        button:hover { transform: translateY(-2px); background: #7dd3fc; }
+        button:active { transform: translateY(0); }
+        button:disabled { background: #475569; cursor: not-allowed; transform: none; opacity: 0.7; }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--secondary-bg);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Tournament Sort</h1>
+    <div class="subtitle">Detailed History & Step-by-Step Visualization</div>
+</header>
+
+<div class="container">
+
+    <div class="info-grid">
+        <div class="card">
+            <h2>📜 Origins & History</h2>
+            <ul>
+                <li><strong>Author:</strong> Concepts by <strong>E. H. Friend</strong> (1956), formalized by <strong>Kenneth Iverson</strong> (1962).</li>
+                <li><strong>Source:</strong> <em>Journal of the ACM</em>, "Sorting on electronic computer systems".</li>
+                <li><strong>Purpose:</strong> Designed for <strong>External Sorting</strong>. In the era of tape drives, computers had small RAM. This algorithm could produce sorted "runs" much larger than memory, minimizing slow tape usage.</li>
+            </ul>
+        </div>
+        <div class="card">
+            <h2>⚙️ Technical Analysis</h2>
+            <ul>
+                <li><strong>Time Complexity:</strong> <span class="badge">O(n log n)</span> (All cases)</li>
+                <li><strong>Space Complexity:</strong> <span class="badge">O(n)</span> (Requires tree structure)</li>
+                <li><strong>In-Place?</strong> <span class="badge badge-no">NO</span> (Needs auxiliary memory)</li>
+                <li><strong>Stable?</strong> <span class="badge badge-no">NO</span> (Tie-breaking is arbitrary)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="card" id="viz-section">
+        <h2>🎨 Interactive Visualization</h2>
+        
+        <div class="status-bar" id="status-text">Click "Start New Sort" to begin.</div>
+
+        <div id="viz-container">
+            <div id="tree-container"></div>
+            <div id="sorted-wrapper">
+                <div class="sorted-label">Sorted Output</div>
+                <div id="sorted-array"></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="btn-reset">Start New Sort</button>
+            <button id="btn-step" disabled>Step Forward</button>
+            <button id="btn-auto" disabled>Auto Play</button>
+            
+            <div class="slider-container">
+                <label for="speed-slider">Speed:</label>
+                <input type="range" id="speed-slider" min="50" max="1000" value="500">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* * Tournament Sort Visualization Engine
+     * Uses a Queue-based approach to pre-calculate steps for smooth animation.
+     */
+
+    // --- Configuration ---
+    const INPUT_SIZE = 8; // Keep small for readability (must be power of 2)
+    
+    // --- State ---
+    let treeData = [];  // The actual data model
+    let queue = [];     // Animation steps queue
+    let queueIndex = 0; // Current step
+    let autoPlayInterval = null;
+    let originalLeaves = []; // To track where values came from
+
+    // --- DOM Elements ---
+    const els = {
+        tree: document.getElementById('tree-container'),
+        sorted: document.getElementById('sorted-array'),
+        status: document.getElementById('status-text'),
+        btnReset: document.getElementById('btn-reset'),
+        btnStep: document.getElementById('btn-step'),
+        btnAuto: document.getElementById('btn-auto'),
+        slider: document.getElementById('speed-slider')
+    };
+
+    // --- Logic: The "Brain" ---
+    
+    function init() {
+        // 1. Generate Random Data
+        const inputs = Array.from({length: INPUT_SIZE}, () => Math.floor(Math.random() * 99) + 1);
+        
+        // 2. Reset UI
+        stopAuto();
+        els.sorted.innerHTML = '';
+        els.tree.innerHTML = '';
+        els.btnStep.disabled = false;
+        els.btnAuto.disabled = false;
+        els.btnAuto.innerText = "Auto Play";
+        
+        // 3. Build Internal Data Structures
+        // Tree is array sized 2*N. Index 1 is root. Indices N to 2N-1 are leaves.
+        treeData = new Array(2 * INPUT_SIZE).fill(null);
+        originalLeaves = [];
+
+        // Fill leaves
+        for(let i = 0; i < INPUT_SIZE; i++) {
+            // We store objects to track the 'source' index of the value
+            const leafIdx = INPUT_SIZE + i;
+            treeData[leafIdx] = { val: inputs[i], sourceIdx: leafIdx };
+        }
+
+        // 4. Render Initial Static Tree
+        renderInitialTree();
+        
+        // 5. Generate the ENTIRE sequence of animation steps
+        queue = generateAnimationSteps([...treeData]); // Pass a copy to logic generator
+        queueIndex = 0;
+
+        updateStatus("Ready. Press 'Step' to begin the Tournament.");
+    }
+
+    // --- The Step Generator ---
+    // Simulates the sort and pushes 'events' to the queue
+    function generateAnimationSteps(simTree) {
+        const q = [];
+
+        // Helper to get value handling Infinity
+        const getVal = (idx) => simTree[idx] ? simTree[idx].val : Infinity;
+
+        // PHASE 1: BUILD THE TOURNAMENT
+        q.push({ type: 'MSG', text: "Phase 1: Build the Tournament Tree (Bottom-Up)" });
+        
+        for (let i = INPUT_SIZE - 1; i > 0; i--) {
+            const left = 2 * i;
+            const right = 2 * i + 1;
+            
+            q.push({ type: 'COMPARE', nodes: [left, right], text: `Comparing children of Node ${i}` });
+
+            const vLeft = getVal(left);
+            const vRight = getVal(right);
+            
+            let winner;
+            if (vLeft <= vRight) {
+                winner = simTree[left];
+                q.push({ type: 'PROMOTE', from: left, to: i, val: winner.val, text: `${vLeft} <= ${vRight}. ${vLeft} moves up.` });
+            } else {
+                winner = simTree[right];
+                q.push({ type: 'PROMOTE', from: right, to: i, val: winner.val, text: `${vRight} < ${vLeft}. ${vRight} moves up.` });
+            }
+            simTree[i] = winner; 
+        }
+
+        q.push({ type: 'MSG', text: "Tree Built! The smallest element is at the Root." });
+
+        // PHASE 2: EXTRACT AND REPLAY
+        for (let k = 0; k < INPUT_SIZE; k++) {
+            const winner = simTree[1]; // Root
+            
+            // 1. Output Root
+            q.push({ type: 'OUTPUT', val: winner.val, text: `Extracting Winner: ${winner.val}` });
+            
+            // 2. Eliminate Source Leaf
+            const leafIdx = winner.sourceIdx;
+            q.push({ type: 'ELIMINATE', node: leafIdx, text: `Eliminating original source leaf (Node ${leafIdx})` });
+            
+            // 3. Mark in simulation
+            simTree[leafIdx] = { val: Infinity, sourceIdx: leafIdx };
+
+            // 4. Replay path to root
+            let curr = Math.floor(leafIdx / 2);
+            while (curr >= 1) {
+                const left = 2 * curr;
+                const right = 2 * curr + 1;
+                
+                q.push({ type: 'COMPARE', nodes: [left, right], text: `Re-evaluating match at Node ${curr}` });
+
+                const vLeft = getVal(left);
+                const vRight = getVal(right);
+
+                let newWinner;
+                if (vLeft <= vRight) {
+                    newWinner = simTree[left];
+                    // Display Infinity as ∞
+                    const displayVal = newWinner.val === Infinity ? "∞" : newWinner.val;
+                    q.push({ type: 'PROMOTE', from: left, to: curr, val: displayVal, text: `Left child wins.` });
+                } else {
+                    newWinner = simTree[right];
+                    const displayVal = newWinner.val === Infinity ? "∞" : newWinner.val;
+                    q.push({ type: 'PROMOTE', from: right, to: curr, val: displayVal, text: `Right child wins.` });
+                }
+                simTree[curr] = newWinner;
+                curr = Math.floor(curr / 2);
+            }
+        }
+        
+        q.push({ type: 'FINISH', text: "Sorting Complete!" });
+        return q;
+    }
+
+    // --- Rendering Helpers ---
+
+    function renderInitialTree() {
+        els.tree.innerHTML = '';
+        const height = Math.log2(INPUT_SIZE) + 1;
+        
+        for (let level = 0; level < height; level++) {
+            const row = document.createElement('div');
+            row.className = 'tree-level';
+            
+            const startNode = Math.pow(2, level);
+            const endNode = startNode * 2;
+            
+            for (let i = startNode; i < endNode; i++) {
+                const node = document.createElement('div');
+                node.className = 'node';
+                node.id = `node-${i}`;
+                
+                // If it's a leaf, fill it
+                if (i >= INPUT_SIZE) {
+                    node.innerText = treeData[i].val;
+                } else {
+                    node.innerText = ""; // Empty initially
+                }
+                row.appendChild(node);
+            }
+            els.tree.appendChild(row);
+        }
+    }
+
+    function updateStatus(msg) {
+        els.status.innerText = msg;
+    }
+
+    function clearHighlights() {
+        document.querySelectorAll('.node').forEach(el => {
+            el.classList.remove('comparing', 'promoted');
+        });
+    }
+
+    // --- Execution Engine ---
+
+    function executeStep() {
+        if (queueIndex >= queue.length) {
+            stopAuto();
+            return;
+        }
+
+        const step = queue[queueIndex];
+        
+        // Clear previous transient states (highlights)
+        clearHighlights();
+
+        switch (step.type) {
+            case 'MSG':
+                updateStatus(step.text);
+                break;
+
+            case 'COMPARE':
+                updateStatus(step.text);
+                step.nodes.forEach(id => {
+                    const el = document.getElementById(`node-${id}`);
+                    if(el) el.classList.add('comparing');
+                });
+                break;
+
+            case 'PROMOTE':
+                updateStatus(step.text);
+                const targetNode = document.getElementById(`node-${step.to}`);
+                if (targetNode) {
+                    targetNode.innerText = step.val === Infinity ? "∞" : step.val;
+                    targetNode.classList.add('promoted');
+                    if (step.val === Infinity) targetNode.classList.add('infinity');
+                }
+                break;
+
+            case 'OUTPUT':
+                updateStatus(step.text);
+                const sortedItem = document.createElement('div');
+                sortedItem.className = 'sorted-item';
+                sortedItem.innerText = step.val;
+                els.sorted.appendChild(sortedItem);
+                
+                // Highlight root as outputting
+                const root = document.getElementById('node-1');
+                if(root) root.classList.add('promoted');
+                break;
+
+            case 'ELIMINATE':
+                updateStatus(step.text);
+                const leaf = document.getElementById(`node-${step.node}`);
+                if(leaf) {
+                    leaf.innerText = "∞";
+                    leaf.classList.add('eliminated', 'infinity');
+                }
+                break;
+
+            case 'FINISH':
+                updateStatus(step.text);
+                els.btnStep.disabled = true;
+                els.btnAuto.disabled = true;
+                break;
+        }
+
+        queueIndex++;
+    }
+
+    // --- Event Listeners ---
+
+    function startAuto() {
+        if(autoPlayInterval) return;
+        const speed = 1050 - parseInt(els.slider.value); // Invert slider logic
+        els.btnAuto.innerText = "Pause";
+        executeStep(); // Do one immediately
+        autoPlayInterval = setInterval(executeStep, speed);
+    }
+
+    function stopAuto() {
+        if(autoPlayInterval) {
+            clearInterval(autoPlayInterval);
+            autoPlayInterval = null;
+        }
+        els.btnAuto.innerText = "Auto Play";
+    }
+
+    els.btnStep.addEventListener('click', () => {
+        stopAuto();
+        executeStep();
+    });
+
+    els.btnAuto.addEventListener('click', () => {
+        if (autoPlayInterval) stopAuto();
+        else startAuto();
+    });
+
+    els.btnReset.addEventListener('click', init);
+    
+    // Dynamic speed adjustment
+    els.slider.addEventListener('input', () => {
+        if(autoPlayInterval) {
+            stopAuto();
+            startAuto();
+        }
+    });
+
+    // Start on load
+    init();
+
+</script>
+</body>
+</html>
