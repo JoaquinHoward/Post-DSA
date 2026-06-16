@@ -4,7 +4,7 @@
 void insertionSort(int arr[], int size);
 void display(int arr[], int size);
 int main(void){
-    int arr[8] = {0, 7, 4, 0, 4, 1, 4, 8};
+    int arr[8] = {1, 4, 2, 5, 7, 3, 6, 0};
     display(arr, 8);
     insertionSort(arr, 8);
     display(arr, 8);
