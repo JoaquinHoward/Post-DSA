@@ -25,6 +25,7 @@ void insertionSort(int arr[], int size){
         for(j = i - 1; j >= 0 && arr[j] > key; j--){
             arr[j + 1] = arr[j];
         }
-        arr[j + 1] = key;
+        //after exiting the loop, the lowest possible value of j is -1, so we do j + 1 so arr[0] can receive the key.
+        arr[j + 1] = key; 
     }
 }

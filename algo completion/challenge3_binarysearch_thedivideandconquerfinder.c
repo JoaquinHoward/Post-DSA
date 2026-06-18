@@ -28,6 +28,7 @@ int binarySearch(int arr[], int size, int target){
             upperNdx = midNdx - 1;
         }
         midNdx = (lowerNdx + upperNdx) / 2;
+        //the lowerNdx + upperNdx is crucial to find the middle of the two ranges
     }
     return lowerNdx <= upperNdx ? midNdx : -1;
 }
