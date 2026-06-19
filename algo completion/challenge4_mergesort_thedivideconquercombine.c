@@ -1,13 +1,14 @@
 #include<stdio.h>
 
 void display(int arr[], int size);
-void merge_sort(int arr[], int left, int right);
+void merge_sort_recursive(int arr[], int left, int right);
 void combine(int arr[], int left, int mid, int right);
+void merge_sort_iterative(int arr[], int size);
 
 int main(void){
-    int arr[8] = {0, 7, 4, 0, 4, 1, 4, 8};
+    int arr[8] = {10, 20, 23, 3, 4, 2, 34, -3};
     display(arr, 8);
-    merge_sort(arr, 0, 7);
+    merge_sort_iterative(arr, 8);
     display(arr, 8);
 }
 
@@ -19,14 +20,14 @@ void display(int arr[], int size){
     printf("\n");
 }
 
-void merge_sort(int arr[], int left, int right){
+void merge_sort_recursive(int arr[], int left, int right){
     //check if the array is still dividable
     if(left < right){
         //find the middle index
         int mid = (left + right) / 2;
         //divide the array into two parts
-        merge_sort(arr, left, mid);
-        merge_sort(arr, mid + 1, right);
+        merge_sort_recursive(arr, left, mid);
+        merge_sort_recursive(arr, mid + 1, right);
         //combine the arrays;
         combine(arr, left, mid, right);
     }
@@ -67,5 +68,19 @@ void combine(int arr[], int left, int mid, int right){
     }
     while(j < n2){
         arr[k++] = R[j++];
+    }
+}
+
+void merge_sort_iterative(int arr[], int size){
+    //size tracker which doubles each round
+    for(int curr_size = 1; curr_size < size; curr_size*=2){
+        //move from left to right in the array
+        for(int left_start = 0; left_start + curr_size< size; left_start += curr_size * 2){
+            int mid = left_start + curr_size -1; // last index of the left chunk
+            int right_end = size - 1 < curr_size*2 + left_start -1 ? size-1 : 2*curr_size + left_start - 1;
+
+            combine(arr, left_start, mid, right_end);
+
+        }
     }
 }
