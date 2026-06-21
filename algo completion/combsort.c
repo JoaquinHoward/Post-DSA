@@ -4,7 +4,7 @@ void display(int arr[], int size);
 void combSort(int arr[], int size);
 
 int main(void){
-    int arr[8] = {0, 7, 4, 0, 4, 1, 4, 8};
+    int arr[8] = {11, 2, 3, 3, 1, 3, 5, 6};
     display(arr, 8);
     combSort(arr, 8);
     display(arr, 8);
