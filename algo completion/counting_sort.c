@@ -34,8 +34,7 @@ void countingSort(int arr[], int size){
         // output[--count[arr[i]]] = arr[i];  one liner
 
         int elem = arr[i];
-        count[elem]--;
-        int targetIndex = count[elem];
+        int targetIndex = --count[elem];
         output[targetIndex]= elem;
     }
 

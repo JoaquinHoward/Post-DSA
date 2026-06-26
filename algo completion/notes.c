@@ -1,54 +1,26 @@
 #include<stdio.h>
 #include<stdlib.h>
 
-void countingSort(int arr[], int size);
 void display(int arr[], int size);
+void shellsort(int arr[], int size);
+void insertionsort(int arr[], int size);
+void combsort(int arr[], int size);
+void bubblesort(int arr[], int size);
+void countingsort(int arr[], int size);
+void selectionsort(int arr[], int size);
+void gnomesort(int arr[], int size);
+//void strandsort(int arr[], int size);
+//void radixsort(int arr[], int size);
+//void bucketsort(int arr[], int size);
+//void tournamentsort(int arr[], int size);
+void mergesort(int arr[], int size);
+// void quicksort(int arr[], int size);
 
 int main(void){
-    int arr[8] = {1, 23, 2, 3, 12, 0, 2, 3};
+    int arr[8] = {0, 7, 4, 0, 4, 1, 4, 8};
     display(arr, 8);
-    countingSort(arr, 8);
+    shellsort(arr, 8);
     display(arr, 8);
-}
-
-void countingSort(int arr[], int size){
-    //Step 1: Find the largest number in the original array
-    if(size > 1){
-        int max = arr[0];
-        for(int i = 1; i < size; i++){
-            if(max < arr[i]){
-                max = arr[i];
-            }
-        }
-        //Step 2: Create the bit-vector-like array and keep track of elements' frequency
-        int* count = (int*) calloc (max + 1, sizeof(int));
-        if(count != NULL){
-            for(int i = 0; i < size; i++){
-                count[arr[i]]++;
-            }
-        }
-        //Step 3: Evolve from elem frequency to counting the number of elements before it
-        for(int i = 1; i <= max; i++){
-            count[i] = count[i] + count[i-1];
-        }
-        //Step 4: Create the sorted/output array to store the elements
-        int* sorted = (int*) malloc (sizeof(int) * size);
-        if(sorted != NULL){
-            for(int i = size - 1; i >= 0; i--){
-                int elem = arr[i];
-                int position = --count[elem];
-                sorted[position] = elem;
-            }
-            
-            //Step 5: Transfer to the original array
-            
-            for(int i = 0; i < size; i++){
-                arr[i] = sorted[i];
-            }
-        }
-        free(sorted);
-        free(count);
-    }
 }
 
 void display(int arr[], int size){
@@ -56,5 +28,17 @@ void display(int arr[], int size){
     for(int i = 0; i < size; i++){
         printf("%d ", arr[i]);
     }
-    printf("\n");
+}
+
+void shellsort(int arr[], int size){
+    for(int gap = size / 2; gap >= 1; gap = gap / 2){
+        for(int i = gap; i < size; i++){
+            int key = arr[i];
+            int j;
+            for(j = i; j >= gap && key < arr[j-gap]; j = j - gap){
+                arr[j] = arr[j-gap];
+            }
+            arr[j] = key;
+        }
+    }
 }

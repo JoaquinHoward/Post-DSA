@@ -15,10 +15,10 @@ void shellSort(int arr[], int size){
         for(int i = gap; i < size; i++){
             int key = arr[i];
             int j;
-            for(j = i; i >= gap && key < arr[j-gap]; j=j-gap){
-                arr[j-gap] = arr[j];
+            for(j = i; j >= gap && key < arr[j-gap]; j=j-gap){
+                arr[j] = arr[j-gap];
             }
-            arr[j-gap] = key;
+            arr[j] = key;
         }
     }
 }
