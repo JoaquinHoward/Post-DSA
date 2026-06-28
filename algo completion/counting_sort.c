@@ -12,38 +12,34 @@ int main(void){
 }
 
 void countingSort(int arr[], int size){
-    // get the biggest number
-    int max = arr[0];
-    for(int i = 1; i < size; i++){
-        if(max < arr[i]){
-            max = arr[i];
+    if(size > 1){
+        int max = arr[0];
+        for(int i = 1; i < size; i++){
+            if(max < arr[i]){
+                max = arr[i];
+            }
         }
-    }
-    //create the count or frequency array
-    int* count = (int*) calloc (max + 1, sizeof(int));
-    for(int i = 0; i < size; i++){
-        count[arr[i]]++;
-    }
-    //count the number of elements before it
-    for(int i = 1; i <= max; i++){
-        count[i] += count[i-1];
-    }
-    //building the output array
-    int* output = (int*) malloc (sizeof(int) * size);
-    for(int i = size - 1; i >= 0; i--){
-        // output[--count[arr[i]]] = arr[i];  one liner
-
-        int elem = arr[i];
-        int targetIndex = --count[elem];
-        output[targetIndex]= elem;
-    }
-
-    for(int i = 0; i < size; i++){
-        arr[i] = output[i];
+        int* count = (int*) calloc (max + 1, sizeof(int));
+        if(count !=NULL){
+            for(int i = 0; i < size; i++){
+                count[arr[i]]++;
+            }
+            for(int i = 1; i < max + 1; i++){
+                count[i] = count[i] + count[i-1];
+            }
+            int output[size];
+            for(int i = size - 1; i >= 0; i--){
+                int elem = arr[i];
+                int position = --count[elem];
+                output[position] = elem;
+            }
+            for(int i = 0; i < size; i++){
+                arr[i] = output[i];
+            }
+        }
+        free(count);
     }
 
-    free(count);
-    free(output);
 }
 
 void display(int arr[], int size){
