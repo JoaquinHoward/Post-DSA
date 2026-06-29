@@ -2,6 +2,7 @@
 
 void merge_sort_recursive(int arr[], int left, int right);
 void merge_sort_iterative(int arr[], int size);
+void mergeSortIterativeV2(int arr[], int size);
 void combine(int arr[], int left, int mid, int right);
 void display(int arr[], int size);
 
@@ -70,6 +71,48 @@ void merge_sort_iterative(int arr[], int size){
             int mid = left_start + curr_size -1;
             int right = (size-1 < left_start + curr_size * 2 - 1) ? (size-1) : (left_start + curr_size * 2 - 1);
             combine(arr, left_start, mid, right);
+        }
+    }
+}
+
+void mergeSortIterativeV2(int arr[], int size){
+    for(int curr_size = 1; curr_size < size; curr_size = curr_size * 2){
+        for(int left_start = 0; left_start < size; left_start = left_start + curr_size * 2){
+            int mid = left_start + curr_size - 1;
+            int right_end = size - 1 < left_start + curr_size * 2 - 1 ? size - 1: left_start + curr_size * 2 - 1;
+            
+            int n1 = mid - left_start + 1;
+            int n2 = right_end - mid;
+
+            int L[n1];
+            int R[n2];
+
+            for(int i = 0; i < n1; i++){
+                L[i] = arr[left_start + i];
+            }
+
+            for(int i = 0; i < n2; i++){
+                R[i] = arr[mid + 1 + i];
+            }
+
+            int i = 0;
+            int j = 0;
+            int k = left_start;
+
+            while(i < n1 && j < n2){
+                if(L[i] <= R[j]){
+                    arr[k++] = L[i++];
+                }else{
+                    arr[k++] = R[j++];
+                }
+            }
+
+            while(i < n1){
+                arr[k++] = L[i++];
+            }
+            while(j < n2){
+                arr[k++] = R[j++];
+            }
         }
     }
 }
